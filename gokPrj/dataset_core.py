@@ -4,29 +4,39 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def create_dataset(datasetfilename, classNames):
+def create_dataset(datasetfilename, classNames, srcPaths):
 
     # list of images
     imgList = []
     labelList = []
     labelNameList = []
 
-    # read image files from folder
-    srcPath = "rawdata"
-    for fname in os.listdir(srcPath):
-        filePath = os.path.join(srcPath, fname)
-        # read
-        img = cv.imread(filePath)
-        imgRGB = img[:,:,::-1]
+    for srcPath in srcPaths:        
+        print(f'folder "{srcPath}"')
+        for fname in os.listdir(srcPath):
+            filePath = os.path.join(srcPath, fname)
+            
+            if os.path.isfile(filePath) == False:
+                continue
 
-        # get last character
-        fname_no_ext = os.path.splitext(fname)[0]
-        label = fname_no_ext[-1]
+            # print(filePath)
+            # read
+            img = cv.imread(filePath)
 
-        # append image
-        imgList.append(imgRGB)
-        labelList.append(classNames[label])
-        labelNameList.append(label)
+            if not img.any():
+                continue
+
+            imgRGB = img[:,:,::-1]
+
+            # get last character
+            fname_no_ext = os.path.splitext(fname)[0]
+            label = fname_no_ext
+            # print(fname_no_ext)
+
+            # append image
+            imgList.append(imgRGB)
+            labelList.append(classNames[label])
+            labelNameList.append(label)
 
     images = np.array(imgList, dtype='object')
     labels = np.array(labelList)
@@ -38,14 +48,15 @@ def create_dataset(datasetfilename, classNames):
 
 if __name__ == "__main__":
     # save dataset
-    datasetfilename = 'gokedataset.npz'
+    datasetFolder = 'master_dataset'
 
-    # classNames = {'afiq':0, 'azureen':1, 'gavin':2, 'goke':3,  'inamul':4, 'jincheng':5, 'mahmuda':6, 'numan':7, 'saseendran':8}
+    datasetfilename = datasetFolder + '.npz'
 
-    classNames = {'A':0, 'B':1, 'C':2}
+    classNames = {'afiq':0, 'azureen':1, 'gavin':2, 'goke':3,  'inamul':4, 'jincheng':5, 'mahmuda':6, 'numan':7, 'saseendran':8}
 
+    srcPaths = [datasetFolder + '/' + p for p in os.listdir(datasetFolder)]
 
-    if create_dataset(datasetfilename, classNames):
+    if create_dataset(datasetfilename, classNames, srcPaths):
 
         data = np.load(datasetfilename, allow_pickle=True)
 
